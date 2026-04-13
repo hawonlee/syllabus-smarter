@@ -3,20 +3,13 @@ import { useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { motion } from "framer-motion";
 import type { ExtractedItem } from "@/lib/types";
-import { getUrgency } from "@/lib/urgency";
 
 interface CalendarViewProps {
   items: ExtractedItem[];
+  classColorByName?: Record<string, string>;
 }
 
-const urgencyDot: Record<string, string> = {
-  low: "bg-urgency-low",
-  medium: "bg-urgency-medium",
-  high: "bg-urgency-high",
-  critical: "bg-urgency-critical",
-};
-
-export function CalendarView({ items }: CalendarViewProps) {
+export function CalendarView({ items, classColorByName }: CalendarViewProps) {
   const [currentMonth, setCurrentMonth] = useState(new Date());
 
   const monthStart = startOfMonth(currentMonth);
@@ -88,7 +81,13 @@ export function CalendarView({ items }: CalendarViewProps) {
                     className="flex items-center gap-1 group cursor-default"
                     title={`${item.name} (${item.type})`}
                   >
-                    <div className={`h-1.5 w-1.5 rounded-full flex-shrink-0 ${urgencyDot[getUrgency(item.dueDate)]}`} />
+                    <div
+                      className="h-1.5 w-1.5 rounded-full flex-shrink-0"
+                      style={{
+                        backgroundColor:
+                          classColorByName?.[item.className] ?? "var(--muted-foreground)",
+                      }}
+                    />
                     <span className="text-[10px] text-foreground truncate leading-tight">{item.name}</span>
                   </div>
                 ))}

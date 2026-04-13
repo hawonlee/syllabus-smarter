@@ -10,6 +10,15 @@ export interface ExtractedItem {
 
 export interface ClassInfo {
   name: string;
+  /**
+   * Optional short identifier used for matching items (e.g. "CS 301").
+   * If omitted, the UI will fall back to deriving it from `name`.
+   */
+  code?: string;
+  /**
+   * Optional class color (hex string) used in UI (e.g. calendar dots).
+   */
+  color?: string;
   instructor?: string;
   instructorEmail?: string;
   ta?: string;
@@ -18,6 +27,10 @@ export interface ClassInfo {
 }
 
 export interface SyllabusData {
+  /**
+   * Client-side identifier for CRUD operations.
+   */
+  id?: string;
   classInfo: ClassInfo;
   items: ExtractedItem[];
 }

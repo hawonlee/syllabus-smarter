@@ -2,13 +2,12 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { BookOpen } from "lucide-react";
-import { SyllabusUpload } from "@/components/SyllabusUpload";
 import { ConfirmationModal } from "@/components/ConfirmationModal";
 import { CalendarView } from "@/components/CalendarView";
-import { CardView } from "@/components/CardView";
-import { ListView } from "@/components/ListView";
 import { ViewToggle } from "@/components/ViewToggle";
-import { ClassInfoBar } from "@/components/ClassInfoBar";
+import { SyllabusUploadModal } from "@/components/SyllabusUploadModal";
+import { ClassesCardView } from "@/components/ClassesCardView";
+import { ClassesListView } from "@/components/ClassesListView";
 import { extractSyllabus } from "@/lib/extract.functions";
 import type { SyllabusData, ViewMode } from "@/lib/types";
 
@@ -24,11 +23,33 @@ export const Route = createFileRoute("/")({
 
 type AppState = "upload" | "confirm" | "dashboard";
 
+const CLASS_COLORS = [
+  "#3B82F6", // blue
+  "#22C55E", // green
+  "#F97316", // orange
+  "#A855F7", // purple
+  "#EF4444", // red
+  "#06B6D4", // cyan
+  "#EAB308", // yellow
+  "#F43F5E", // rose
+];
+
+function deriveClassCode(data: SyllabusData): string {
+  const itemCode = data.items?.[0]?.className?.trim();
+  if (itemCode) return itemCode;
+  return data.classInfo.name?.split(" - ")?.[0]?.trim() || data.classInfo.name || "Unknown";
+}
+
+function newId(): string {
+  // crypto.randomUUID is available in modern browsers
+  return globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+}
+
 function Index() {
-  const [state, setState] = useState<AppState>("upload");
+  const [state, setState] = useState<AppState>("dashboard");
   const [isProcessing, setIsProcessing] = useState(false);
   const [pendingData, setPendingData] = useState<SyllabusData | null>(null);
-  const [confirmedData, setConfirmedData] = useState<SyllabusData | null>(null);
+  const [classes, setClasses] = useState<SyllabusData[]>([]);
   const [viewMode, setViewMode] = useState<ViewMode>("cards");
 
   const handleTextReady = async (text: string) => {
@@ -46,14 +67,59 @@ function Index() {
   };
 
   const handleConfirm = (data: SyllabusData) => {
-    setConfirmedData(data);
+    setClasses((prev) => {
+      const used = new Set(prev.map((c) => c.classInfo.color).filter(Boolean) as string[]);
+      const nextColor =
+        CLASS_COLORS.find((c) => !used.has(c)) ??
+        CLASS_COLORS[prev.length % CLASS_COLORS.length];
+
+      const code = data.classInfo.code?.trim() || deriveClassCode(data);
+
+      return [
+        ...prev,
+        {
+          ...data,
+          id: data.id || newId(),
+          classInfo: {
+            ...data.classInfo,
+            code,
+            color: data.classInfo.color || nextColor,
+          },
+        },
+      ];
+    });
     setState("dashboard");
   };
 
-  const handleReset = () => {
-    setState("upload");
+  const updateClassInfo = (classId: string, nextInfo: SyllabusData["classInfo"]) => {
+    setClasses((prev) =>
+      prev.map((c) => (c.id === classId ? { ...c, classInfo: nextInfo } : c))
+    );
+  };
+
+  const deleteClass = (classId: string) => {
+    setClasses((prev) => prev.filter((c) => c.id !== classId));
+  };
+
+  const updateItem = (classId: string, itemId: string, nextItem: SyllabusData["items"][number]) => {
+    setClasses((prev) =>
+      prev.map((c) =>
+        c.id === classId
+          ? { ...c, items: c.items.map((it) => (it.id === itemId ? nextItem : it)) }
+          : c
+      )
+    );
+  };
+
+  const deleteItem = (classId: string, itemId: string) => {
+    setClasses((prev) =>
+      prev.map((c) => (c.id === classId ? { ...c, items: c.items.filter((it) => it.id !== itemId) } : c))
+    );
+  };
+
+  const handleCloseModals = () => {
+    setState("dashboard");
     setPendingData(null);
-    setConfirmedData(null);
   };
 
   return (
@@ -65,38 +131,25 @@ function Index() {
             <BookOpen className="h-5 w-5 text-foreground" />
             <span className="text-sm font-semibold tracking-tight text-foreground">SyllabEase</span>
           </div>
-          {state === "dashboard" && (
-            <div className="flex items-center gap-3">
-              <ViewToggle current={viewMode} onChange={setViewMode} />
-              <button
-                onClick={handleReset}
-                className="text-xs text-muted-foreground hover:text-foreground transition-colors"
-              >
-                + Add syllabus
-              </button>
-            </div>
-          )}
+          <div className="flex items-center gap-3">
+            <ViewToggle current={viewMode} onChange={setViewMode} />
+            <button
+              onClick={() => setState("upload")}
+              className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+            >
+              + Add class
+            </button>
+          </div>
         </div>
       </header>
 
-      {/* Upload state */}
-      {state === "upload" && (
-        <main className="max-w-5xl mx-auto px-6 pt-24 pb-16">
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-center mb-10"
-          >
-            <h1 className="text-2xl font-semibold text-foreground tracking-tight">
-              See your semester at a glance
-            </h1>
-            <p className="text-sm text-muted-foreground mt-2 max-w-md mx-auto">
-              Upload a syllabus and we'll extract every assignment, exam, and deadline — so you can plan ahead without the manual work.
-            </p>
-          </motion.div>
-          <SyllabusUpload onTextReady={handleTextReady} isProcessing={isProcessing} />
-        </main>
-      )}
+      {/* Upload modal */}
+      <SyllabusUploadModal
+        open={state === "upload"}
+        onOpenChange={(open) => setState(open ? "upload" : "dashboard")}
+        onTextReady={handleTextReady}
+        isProcessing={isProcessing}
+      />
 
       {/* Confirmation modal */}
       <AnimatePresence>
@@ -104,26 +157,73 @@ function Index() {
           <ConfirmationModal
             data={pendingData}
             onConfirm={handleConfirm}
-            onCancel={handleReset}
+            onCancel={handleCloseModals}
           />
         )}
       </AnimatePresence>
 
       {/* Dashboard */}
-      {state === "dashboard" && confirmedData && (
+      {state === "dashboard" && (
         <main className="max-w-5xl mx-auto px-6 py-6">
-          <div className="mb-6">
-            <h2 className="text-lg font-semibold text-foreground">{confirmedData.classInfo.name}</h2>
-            <div className="mt-2">
-              <ClassInfoBar info={confirmedData.classInfo} />
-            </div>
-          </div>
-
           <AnimatePresence mode="wait">
             <motion.div key={viewMode}>
-              {viewMode === "calendar" && <CalendarView items={confirmedData.items} />}
-              {viewMode === "cards" && <CardView items={confirmedData.items} />}
-              {viewMode === "list" && <ListView items={confirmedData.items} />}
+              {viewMode === "calendar" && (
+                <CalendarView
+                  items={classes.flatMap((c) => c.items)}
+                  classColorByName={Object.fromEntries(
+                    classes.map((c) => [
+                      c.classInfo.code || deriveClassCode(c),
+                      c.classInfo.color || CLASS_COLORS[0],
+                    ])
+                  )}
+                />
+              )}
+              {viewMode === "cards" && (
+                <ClassesCardView
+                  classes={classes}
+                  onEditClass={updateClassInfo}
+                  onDeleteClass={deleteClass}
+                  onEditItem={updateItem}
+                  onDeleteItem={deleteItem}
+                  emptyState={
+                    <div className="rounded-xl border border-border bg-card p-8 text-center sm:col-span-2">
+                      <h2 className="text-sm font-semibold text-foreground">No classes yet</h2>
+                      <p className="mt-1 text-sm text-muted-foreground">
+                        Add a class to start seeing assignments and deadlines here.
+                      </p>
+                      <button
+                        onClick={() => setState("upload")}
+                        className="mt-4 inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+                      >
+                        Add your first class
+                      </button>
+                    </div>
+                  }
+                />
+              )}
+              {viewMode === "list" && (
+                <ClassesListView
+                  classes={classes}
+                  onEditClass={updateClassInfo}
+                  onDeleteClass={deleteClass}
+                  onEditItem={updateItem}
+                  onDeleteItem={deleteItem}
+                  emptyState={
+                    <div className="rounded-xl border border-border bg-card p-8 text-center">
+                      <h2 className="text-sm font-semibold text-foreground">No classes yet</h2>
+                      <p className="mt-1 text-sm text-muted-foreground">
+                        Add a class to start seeing assignments and deadlines here.
+                      </p>
+                      <button
+                        onClick={() => setState("upload")}
+                        className="mt-4 inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+                      >
+                        Add your first class
+                      </button>
+                    </div>
+                  }
+                />
+              )}
             </motion.div>
           </AnimatePresence>
         </main>

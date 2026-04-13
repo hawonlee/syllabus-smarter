@@ -14,6 +14,10 @@ export const extractSyllabus = createServerFn({ method: "POST" })
       throw new Error("Groq API key is not configured");
     }
 
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const hasExplicitYearInText = /\b(19|20)\d{2}\b/.test(data.text);
+
     const systemPrompt = `You are a syllabus parser. Extract structured data from college course syllabi.
 
 Return a JSON object with this exact structure:
@@ -42,7 +46,7 @@ Return a JSON object with this exact structure:
 Rules:
 - Extract ALL assignments, exams, quizzes, projects, and deadlines
 - Use YYYY-MM-DD format for dates. If only a month/week is given, estimate a reasonable date
-- If the year is not specified, assume the current academic year (2025-2026)
+- If the year is not specified or is unclear, assume the current year (${currentYear})
 - type must be one of: assignment, exam, quiz, project, other
 - Keep names concise but descriptive
 - Return ONLY valid JSON, no markdown or extra text`;
@@ -93,6 +97,17 @@ Rules:
       type: item.type || "other",
       className: item.className || parsed.classInfo.name?.split(" - ")?.[0] || "Unknown",
     }));
+
+    // If the syllabus text doesn't contain an explicit year, normalize all dueDate years to the current year.
+    // This prevents the model from guessing a prior/academic year when only month/day is present.
+    if (!hasExplicitYearInText) {
+      parsed.items = parsed.items.map((item) => {
+        const m = String(item.dueDate || "").match(/^(\d{4})-(\d{2})-(\d{2})$/);
+        if (!m) return item;
+        const [, , mm, dd] = m;
+        return { ...item, dueDate: `${currentYear}-${mm}-${dd}` };
+      });
+    }
 
     return parsed;
   });
