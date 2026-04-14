@@ -91,6 +91,13 @@ function Index() {
     setState("dashboard");
   };
 
+  const handleCreateEmptyClass = () => {
+    handleConfirm({
+      classInfo: { name: "New class" },
+      items: [],
+    });
+  };
+
   const updateClassInfo = (classId: string, nextInfo: SyllabusData["classInfo"]) => {
     setClasses((prev) =>
       prev.map((c) => (c.id === classId ? { ...c, classInfo: nextInfo } : c))
@@ -114,6 +121,12 @@ function Index() {
   const deleteItem = (classId: string, itemId: string) => {
     setClasses((prev) =>
       prev.map((c) => (c.id === classId ? { ...c, items: c.items.filter((it) => it.id !== itemId) } : c))
+    );
+  };
+
+  const addItem = (classId: string, item: SyllabusData["items"][number]) => {
+    setClasses((prev) =>
+      prev.map((c) => (c.id === classId ? { ...c, items: [...c.items, item] } : c))
     );
   };
 
@@ -149,6 +162,7 @@ function Index() {
         onOpenChange={(open) => setState(open ? "upload" : "dashboard")}
         onTextReady={handleTextReady}
         isProcessing={isProcessing}
+        onCreateEmpty={handleCreateEmptyClass}
       />
 
       {/* Confirmation modal */}
@@ -185,6 +199,7 @@ function Index() {
                   onDeleteClass={deleteClass}
                   onEditItem={updateItem}
                   onDeleteItem={deleteItem}
+                  onAddItem={addItem}
                   emptyState={
                     <div className="rounded-xl border border-border bg-card p-8 text-center sm:col-span-2">
                       <h2 className="text-sm font-semibold text-foreground">No classes yet</h2>
@@ -208,6 +223,7 @@ function Index() {
                   onDeleteClass={deleteClass}
                   onEditItem={updateItem}
                   onDeleteItem={deleteItem}
+                  onAddItem={addItem}
                   emptyState={
                     <div className="rounded-xl border border-border bg-card p-8 text-center">
                       <h2 className="text-sm font-semibold text-foreground">No classes yet</h2>

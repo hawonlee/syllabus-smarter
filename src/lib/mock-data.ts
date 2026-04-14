@@ -5,9 +5,22 @@ export const mockSyllabusData: SyllabusData = {
     name: "CS 301 - Data Structures",
     instructor: "Dr. Sarah Chen",
     instructorEmail: "schen@university.edu",
-    ta: "Alex Rivera",
-    taEmail: "arivera@university.edu",
     officeHours: "Mon/Wed 2-4 PM, Room 312",
+    assistants: [
+      {
+        name: "Alex Rivera",
+        role: "TA",
+        email: "arivera@university.edu",
+        officeHours: "Thu 1–3 PM, CS lounge",
+      },
+      {
+        name: "Jordan Kim",
+        role: "Course Assistant",
+        email: "jkim@university.edu",
+        phone: "555-0102",
+        officeHours: "Fri 10 AM–12 PM, Zoom",
+      },
+    ],
   },
   items: [
     {

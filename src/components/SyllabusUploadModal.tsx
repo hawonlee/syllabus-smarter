@@ -14,6 +14,7 @@ type SyllabusUploadModalProps = {
   onOpenChange: (open: boolean) => void;
   onTextReady: (text: string) => void;
   isProcessing: boolean;
+  onCreateEmpty?: () => void;
 };
 
 export function SyllabusUploadModal({
@@ -21,6 +22,7 @@ export function SyllabusUploadModal({
   onOpenChange,
   onTextReady,
   isProcessing,
+  onCreateEmpty,
 }: SyllabusUploadModalProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -28,13 +30,31 @@ export function SyllabusUploadModal({
         <DialogHeader>
           <DialogTitle>Add a class</DialogTitle>
           <DialogDescription>
-            Upload a syllabus PDF (or paste text) to extract assignments, exams, and deadlines.
+            Upload a syllabus PDF (or paste text) to extract assignments, exams, and deadlines — or
+            create an empty class and add work manually.
           </DialogDescription>
         </DialogHeader>
 
         <div className="pt-1">
           <SyllabusUpload onTextReady={onTextReady} isProcessing={isProcessing} />
         </div>
+
+        {onCreateEmpty && (
+          <div className="flex justify-center border-t border-border pt-4">
+            <Button
+              type="button"
+              variant="ghost"
+              className="text-sm text-muted-foreground hover:text-foreground"
+              disabled={isProcessing}
+              onClick={() => {
+                onCreateEmpty();
+                onOpenChange(false);
+              }}
+            >
+              Create empty class (no syllabus)
+            </Button>
+          </div>
+        )}
 
         <DialogFooter className="gap-2 sm:gap-0">
           <Button

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import type { ClassInfo } from "@/lib/types";
+import type { ClassInfo, CourseAssistant } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -23,7 +23,22 @@ export function EditClassDialog({ open, onOpenChange, value, onSave }: EditClass
   const [draft, setDraft] = useState<ClassInfo>(value);
 
   useEffect(() => {
-    if (open) setDraft(value);
+    if (open) {
+      const withAssistants: ClassInfo =
+        value.assistants?.length || !value.ta?.trim()
+          ? value
+          : {
+              ...value,
+              assistants: [
+                {
+                  name: value.ta.trim(),
+                  role: "TA",
+                  email: value.taEmail?.trim() || undefined,
+                },
+              ],
+            };
+      setDraft(withAssistants);
+    }
   }, [open, value]);
 
   const canSave = draft.name.trim().length > 0;
@@ -102,6 +117,100 @@ export function EditClassDialog({ open, onOpenChange, value, onSave }: EditClass
               placeholder="Mon/Wed 2–4 PM, Room 312"
             />
           </div>
+
+          <div className="grid gap-3">
+            <div className="flex items-center justify-between gap-2">
+              <label className="text-sm font-medium text-foreground">TAs, CAs, and other staff</label>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() =>
+                  setDraft((d) => ({
+                    ...d,
+                    assistants: [...(d.assistants ?? []), { name: "", role: "TA" }],
+                  }))
+                }
+              >
+                Add person
+              </Button>
+            </div>
+            {(draft.assistants ?? []).length === 0 ? (
+              <p className="text-xs text-muted-foreground">No assistants listed.</p>
+            ) : (
+              <div className="space-y-3">
+                {(draft.assistants ?? []).map((row, i) => (
+                  <div
+                    key={i}
+                    className="grid gap-2 rounded-lg border border-border p-3 sm:grid-cols-2"
+                  >
+                    <div className="grid gap-2 sm:col-span-2 sm:grid-cols-2">
+                      <Input
+                        value={row.name}
+                        onChange={(e) => {
+                          const next = [...(draft.assistants ?? [])];
+                          next[i] = { ...row, name: e.target.value };
+                          setDraft((d) => ({ ...d, assistants: next }));
+                        }}
+                        placeholder="Name"
+                      />
+                      <Input
+                        value={row.role ?? ""}
+                        onChange={(e) => {
+                          const next = [...(draft.assistants ?? [])];
+                          next[i] = { ...row, role: e.target.value || undefined };
+                          setDraft((d) => ({ ...d, assistants: next }));
+                        }}
+                        placeholder="Role (TA, CA, …)"
+                      />
+                    </div>
+                    <Input
+                      value={row.email ?? ""}
+                      onChange={(e) => {
+                        const next = [...(draft.assistants ?? [])];
+                        next[i] = { ...row, email: e.target.value || undefined };
+                        setDraft((d) => ({ ...d, assistants: next }));
+                      }}
+                      placeholder="Email"
+                    />
+                    <Input
+                      value={row.phone ?? ""}
+                      onChange={(e) => {
+                        const next = [...(draft.assistants ?? [])];
+                        next[i] = { ...row, phone: e.target.value || undefined };
+                        setDraft((d) => ({ ...d, assistants: next }));
+                      }}
+                      placeholder="Phone"
+                    />
+                    <Input
+                      className="sm:col-span-2"
+                      value={row.officeHours ?? ""}
+                      onChange={(e) => {
+                        const next = [...(draft.assistants ?? [])];
+                        next[i] = { ...row, officeHours: e.target.value || undefined };
+                        setDraft((d) => ({ ...d, assistants: next }));
+                      }}
+                      placeholder="Their office / help hours"
+                    />
+                    <div className="sm:col-span-2 flex justify-end">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="text-destructive hover:text-destructive"
+                        onClick={() => {
+                          const next = (draft.assistants ?? []).filter((_, j) => j !== i);
+                          setDraft((d) => ({ ...d, assistants: next.length ? next : undefined }));
+                        }}
+                      >
+                        Remove
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
         <DialogFooter>
@@ -119,7 +228,20 @@ export function EditClassDialog({ open, onOpenChange, value, onSave }: EditClass
             type="button"
             onClick={() => {
               if (!canSave) return;
-              onSave({ ...draft, name: draft.name.trim() });
+              const assistants = (draft.assistants ?? [])
+                .map((a): CourseAssistant => ({
+                  name: a.name.trim(),
+                  role: a.role?.trim() || undefined,
+                  email: a.email?.trim() || undefined,
+                  phone: a.phone?.trim() || undefined,
+                  officeHours: a.officeHours?.trim() || undefined,
+                }))
+                .filter((a) => a.name.length > 0);
+              onSave({
+                ...draft,
+                name: draft.name.trim(),
+                assistants: assistants.length ? assistants : undefined,
+              });
               onOpenChange(false);
             }}
             disabled={!canSave}

@@ -3,6 +3,7 @@ import { Check, Pencil, Trash2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import type { SyllabusData, ExtractedItem, ClassInfo } from "@/lib/types";
+import { ClassInfoBar } from "@/components/ClassInfoBar";
 
 interface ConfirmationModalProps {
   data: SyllabusData;
@@ -59,11 +60,9 @@ export function ConfirmationModal({ data, onConfirm, onCancel }: ConfirmationMod
           <p className="text-sm text-muted-foreground mt-1">
             {classInfo.name} · {items.length} items found
           </p>
-          {classInfo.instructor && (
-            <p className="text-xs text-muted-foreground mt-0.5">
-              {classInfo.instructor} {classInfo.instructorEmail && `· ${classInfo.instructorEmail}`}
-            </p>
-          )}
+          <div className="mt-3">
+            <ClassInfoBar info={classInfo} />
+          </div>
         </div>
 
         {/* Items */}

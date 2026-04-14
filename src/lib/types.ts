@@ -8,6 +8,17 @@ export interface ExtractedItem {
   className: string;
 }
 
+/** Teaching assistant, course assistant, UTA, grader, etc. */
+export interface CourseAssistant {
+  name: string;
+  /** e.g. TA, CA, Course Assistant, UTA, GTA */
+  role?: string;
+  email?: string;
+  phone?: string;
+  /** Help hours, office hours, or discussion section times for this person */
+  officeHours?: string;
+}
+
 export interface ClassInfo {
   name: string;
   /**
@@ -21,9 +32,17 @@ export interface ClassInfo {
   color?: string;
   instructor?: string;
   instructorEmail?: string;
+  /** @deprecated Prefer `assistants`; still populated by some extractions */
   ta?: string;
+  /** @deprecated Prefer `assistants`; still populated by some extractions */
   taEmail?: string;
+  /** Instructor office hours */
   officeHours?: string;
+  /**
+   * All teaching assistants, course assistants, UTAs, graders, etc.
+   * Include name, contact (email/phone), and hours when the syllabus lists them.
+   */
+  assistants?: CourseAssistant[];
 }
 
 export interface SyllabusData {

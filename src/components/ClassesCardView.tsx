@@ -9,6 +9,7 @@ import type { ClassInfo, ExtractedItem } from "@/lib/types";
 import { EditClassDialog } from "@/components/EditClassDialog";
 import { EditItemDialog } from "@/components/EditItemDialog";
 import { ConfirmDeleteDialog } from "@/components/ConfirmDeleteDialog";
+import { InlineAddTask } from "@/components/InlineAddTask";
 import type { ReactNode } from "react";
 
 const urgencyDot: Record<string, string> = {
@@ -32,6 +33,7 @@ type ClassesCardViewProps = {
   onDeleteClass: (classId: string) => void;
   onEditItem: (classId: string, itemId: string, nextItem: ExtractedItem) => void;
   onDeleteItem: (classId: string, itemId: string) => void;
+  onAddItem: (classId: string, item: ExtractedItem) => void;
   emptyState?: ReactNode;
 };
 
@@ -41,6 +43,7 @@ export function ClassesCardView({
   onDeleteClass,
   onEditItem,
   onDeleteItem,
+  onAddItem,
   emptyState,
 }: ClassesCardViewProps) {
   const sortedClasses = [...classes].sort((a, b) =>
@@ -71,6 +74,10 @@ export function ClassesCardView({
           (a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()
         );
         const classId = klass.id || `${klass.classInfo.name}-${classIndex}`;
+        const itemClassName =
+          klass.classInfo.code?.trim() ||
+          klass.classInfo.name.split(" - ")?.[0]?.trim() ||
+          klass.classInfo.name;
 
         return (
           <motion.div
@@ -166,6 +173,13 @@ export function ClassesCardView({
                   </div>
                 );
               })}
+            </div>
+
+            <div className="mt-4 border-t border-border pt-3">
+              <InlineAddTask
+                classNameLabel={itemClassName}
+                onAdd={(item) => onAddItem(classId, item)}
+              />
             </div>
           </motion.div>
         );

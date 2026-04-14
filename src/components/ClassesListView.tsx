@@ -8,6 +8,7 @@ import { ClassInfoBar } from "@/components/ClassInfoBar";
 import { EditClassDialog } from "@/components/EditClassDialog";
 import { EditItemDialog } from "@/components/EditItemDialog";
 import { ConfirmDeleteDialog } from "@/components/ConfirmDeleteDialog";
+import { InlineAddTask } from "@/components/InlineAddTask";
 import type { ReactNode } from "react";
 
 const urgencyDot: Record<string, string> = {
@@ -23,6 +24,7 @@ type ClassesListViewProps = {
   onDeleteClass: (classId: string) => void;
   onEditItem: (classId: string, itemId: string, nextItem: ExtractedItem) => void;
   onDeleteItem: (classId: string, itemId: string) => void;
+  onAddItem: (classId: string, item: ExtractedItem) => void;
   emptyState?: ReactNode;
 };
 
@@ -32,6 +34,7 @@ export function ClassesListView({
   onDeleteClass,
   onEditItem,
   onDeleteItem,
+  onAddItem,
   emptyState,
 }: ClassesListViewProps) {
   const sortedClasses = [...classes].sort((a, b) =>
@@ -60,6 +63,10 @@ export function ClassesListView({
           (a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()
         );
         const classId = klass.id || `${klass.classInfo.name}-${classIndex}`;
+        const itemClassName =
+          klass.classInfo.code?.trim() ||
+          klass.classInfo.name.split(" - ")?.[0]?.trim() ||
+          klass.classInfo.name;
 
         return (
           <div key={`${klass.classInfo.name}-${classIndex}`}>
@@ -150,6 +157,13 @@ export function ClassesListView({
                   </motion.div>
                 );
               })}
+
+              <div className="border-t border-border bg-secondary/30 px-3 py-3">
+                <InlineAddTask
+                  classNameLabel={itemClassName}
+                  onAdd={(item) => onAddItem(classId, item)}
+                />
+              </div>
             </div>
           </div>
         );
