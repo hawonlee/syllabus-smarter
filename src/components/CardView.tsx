@@ -12,7 +12,9 @@ const urgencyBorder: Record<string, string> = {
   medium: "border-l-urgency-medium",
   high: "border-l-urgency-high",
   critical: "border-l-urgency-critical",
+  overdue: "border-l-red-600",
 };
+
 
 const typeBadge: Record<string, string> = {
   assignment: "bg-urgency-low/10 text-urgency-low",
