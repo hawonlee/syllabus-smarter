@@ -14,24 +14,26 @@ export function ClassInfoBar({ info }: ClassInfoBarProps) {
 
   return (
     <div className="space-y-3 text-xs text-muted-foreground">
-      <div className="flex flex-wrap items-center gap-4">
+      <div className="flex flex-wrap items-center gap-4 rounded-md border border-border bg-muted/30 px-3 py-2 text-sm text-foreground">
         {info.instructor && (
-          <span className="flex items-center gap-1.5">
-            <User className="h-3 w-3" />
+          <span className="flex items-center gap-1.5 font-medium">
+            <User className="h-3.5 w-3.5" />
+            <span className="text-[10px] uppercase tracking-wide text-muted-foreground/90">Instructor</span>
             {info.instructor}
           </span>
         )}
         {info.instructorEmail && (
-          <a href={`mailto:${info.instructorEmail}`} className="flex items-center gap-1.5 hover:text-foreground transition-colors">
-            <Mail className="h-3 w-3" />
+          <a href={`mailto:${info.instructorEmail}`} className="flex items-center gap-1.5 font-medium hover:text-foreground transition-colors">
+            <Mail className="h-3.5 w-3.5" />
+            <span className="text-[10px] uppercase tracking-wide text-muted-foreground/90">Email</span>
             {info.instructorEmail}
           </a>
         )}
         {info.officeHours && (
-          <span className="flex items-center gap-1.5">
-            <Clock className="h-3 w-3" />
+          <span className="flex items-center gap-1.5 font-medium">
+            <Clock className="h-3.5 w-3.5" />
             <span>
-              <span className="text-[10px] uppercase tracking-wide text-muted-foreground/80 mr-1">Instructor</span>
+              <span className="text-[10px] uppercase tracking-wide text-muted-foreground/90 mr-1">Office hours</span>
               {info.officeHours}
             </span>
           </span>
