@@ -56,4 +56,4 @@ export interface SyllabusData {
 
 export type ViewMode = "calendar" | "cards" | "list";
 
-export type UrgencyLevel = "low" | "medium" | "high" | "critical";
+export type UrgencyLevel = "low" | "medium" | "high" | "critical" | "overdue";
