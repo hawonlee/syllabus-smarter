@@ -46,6 +46,12 @@ export function ClassesCardView({
   onAddItem,
   emptyState,
 }: ClassesCardViewProps) {
+  const getDueDateLabel = (dueDate?: string) => {
+    if (!dueDate?.trim()) return "No due date detected";
+    const parsed = new Date(dueDate);
+    return Number.isNaN(parsed.getTime()) ? "No due date detected" : format(parsed, "MMM d, yyyy");
+  };
+
   const sortedClasses = [...classes].sort((a, b) =>
     a.classInfo.name.localeCompare(b.classInfo.name)
   );
@@ -165,8 +171,8 @@ export function ClassesCardView({
                         </div>
                       </div>
                       <div className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
-                        <span>{format(new Date(item.dueDate), "MMM d, yyyy")}</span>
-                        {item.weight ? <span>· {item.weight}%</span> : null}
+                        <span>{getDueDateLabel(item.dueDate)}</span>
+                        <span>{item.weight ? `· ${item.weight}%` : "· No grade distribution detected"}</span>
                         <span className="ml-auto text-[10px]">{getUrgencyLabel(urgency)}</span>
                       </div>
                     </div>

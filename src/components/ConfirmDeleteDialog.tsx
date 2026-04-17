@@ -37,7 +37,7 @@ export function ConfirmDeleteDialog({
           <AlertDialogCancel>Cancel</AlertDialogCancel>
           <AlertDialogAction
             onClick={onConfirm}
-            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            className="bg-destructive text-destructive-foreground hover:bg-destructive hover:brightness-90"
           >
             {confirmText}
           </AlertDialogAction>

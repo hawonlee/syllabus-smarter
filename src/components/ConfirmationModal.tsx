@@ -104,7 +104,9 @@ export function ConfirmationModal({ data, onConfirm, onCancel }: ConfirmationMod
                     </span>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-foreground truncate">{item.name}</p>
-                      <p className="text-xs text-muted-foreground">{item.dueDate}{item.weight ? ` · ${item.weight}%` : ""}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {`${item.dueDate?.trim() ? `Due on: ${item.dueDate}` : "No due date detected"} · ${item.weight ? `${item.weight}% of total grade` : "No grade distribution detected"}`}
+                      </p>
                     </div>
                     <div className="flex gap-1">
                       <button onClick={() => startEdit(item)} className="p-1 rounded hover:bg-accent">
@@ -129,7 +131,7 @@ export function ConfirmationModal({ data, onConfirm, onCancel }: ConfirmationMod
           <Button
             onClick={() => onConfirm({ classInfo, items })}
             disabled={items.length === 0}
-            className="flex-1"
+            className="flex-1 bg-black text-white hover:bg-zinc-800"
           >
             Looks good — continue
           </Button>
