@@ -179,6 +179,10 @@ function Index() {
       {/* Dashboard */}
       {state === "dashboard" && (
         <main className="max-w-5xl mx-auto px-6 py-6">
+          <div className="mb-4 rounded-md border border-border bg-card px-4 py-3 text-xs text-muted-foreground">
+            SyllabEase takes in your syllabus and scans it for relevant information to then categorize your
+            asssignments. You syllabus information will not be used for any other purpose
+          </div>
           <AnimatePresence mode="wait">
             <motion.div key={viewMode}>
               {viewMode === "calendar" && (
