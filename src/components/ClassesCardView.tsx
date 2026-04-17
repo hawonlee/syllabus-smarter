@@ -17,6 +17,7 @@ const urgencyDot: Record<string, string> = {
   medium: "bg-urgency-medium",
   high: "bg-urgency-high",
   critical: "bg-urgency-critical",
+  overdue: "bg-red-600",
 };
 
 const typeBadge: Record<string, string> = {
