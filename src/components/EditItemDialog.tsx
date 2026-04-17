@@ -27,16 +27,22 @@ type EditItemDialogProps = {
 };
 
 const ITEM_TYPES: ExtractedItem["type"][] = ["assignment", "exam", "quiz", "project", "other"];
+const toTitleCase = (value: string) => value.charAt(0).toUpperCase() + value.slice(1);
 
 export function EditItemDialog({ open, onOpenChange, value, onSave }: EditItemDialogProps) {
   const initial = useMemo(() => value, [value]);
   const [draft, setDraft] = useState<ExtractedItem>(value);
+  const [showDateError, setShowDateError] = useState(false);
 
   useEffect(() => {
-    if (open) setDraft(value);
+    if (open) {
+      setDraft(value);
+      setShowDateError(false);
+    }
   }, [open, value]);
 
-  const canSave = draft.name.trim().length > 0 && /^\d{4}-\d{2}-\d{2}$/.test(draft.dueDate);
+  const canSave = draft.name.trim().length > 0;
+  const hasValidDueDate = /^\d{4}-\d{2}-\d{2}$/.test(draft.dueDate);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -70,36 +76,49 @@ export function EditItemDialog({ open, onOpenChange, value, onSave }: EditItemDi
               <SelectContent>
                 {ITEM_TYPES.map((t) => (
                   <SelectItem key={t} value={t}>
-                    {t}
+                    {toTitleCase(t)}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="grid gap-2">
-              <label className="text-sm font-medium text-foreground">Due date</label>
-              <Input
-                type="date"
-                value={draft.dueDate}
-                onChange={(e) => setDraft((d) => ({ ...d, dueDate: e.target.value }))}
-              />
+          <div className="grid gap-1">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid gap-2">
+                <label className="text-sm font-medium text-foreground">Due date</label>
+                <Input
+                  type="date"
+                  value={draft.dueDate}
+                  onChange={(e) => {
+                    const nextDate = e.target.value;
+                    setDraft((d) => ({ ...d, dueDate: nextDate }));
+                    if (/^\d{4}-\d{2}-\d{2}$/.test(nextDate)) {
+                      setShowDateError(false);
+                    }
+                  }}
+                  aria-invalid={showDateError && !hasValidDueDate}
+                  className={showDateError && !hasValidDueDate ? "border-destructive focus-visible:ring-destructive" : undefined}
+                />
+              </div>
+              <div className="grid gap-2">
+                <label className="text-sm font-medium text-foreground">Weight (%)</label>
+                <Input
+                  type="number"
+                  inputMode="numeric"
+                  value={draft.weight ?? ""}
+                  onChange={(e) => {
+                    const raw = e.target.value;
+                    const n = raw === "" ? undefined : Number(raw);
+                    setDraft((d) => ({ ...d, weight: Number.isFinite(n) ? n : undefined }));
+                  }}
+                  placeholder="—"
+                />
+              </div>
             </div>
-            <div className="grid gap-2">
-              <label className="text-sm font-medium text-foreground">Weight (%)</label>
-              <Input
-                type="number"
-                inputMode="numeric"
-                value={draft.weight ?? ""}
-                onChange={(e) => {
-                  const raw = e.target.value;
-                  const n = raw === "" ? undefined : Number(raw);
-                  setDraft((d) => ({ ...d, weight: Number.isFinite(n) ? n : undefined }));
-                }}
-                placeholder="—"
-              />
-            </div>
+            {showDateError && !hasValidDueDate ? (
+              <p className="text-xs text-destructive">Date required</p>
+            ) : null}
           </div>
 
           <div className="grid gap-2">
@@ -129,10 +148,14 @@ export function EditItemDialog({ open, onOpenChange, value, onSave }: EditItemDi
             type="button"
             onClick={() => {
               if (!canSave) return;
+              if (!hasValidDueDate) {
+                setShowDateError(true);
+                return;
+              }
               onSave({ ...draft, name: draft.name.trim() });
               onOpenChange(false);
             }}
-            disabled={!canSave}
+            className="bg-black text-white hover:bg-zinc-800"
           >
             Save
           </Button>

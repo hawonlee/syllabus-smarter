@@ -14,6 +14,7 @@ import {
 import type { ExtractedItem } from "@/lib/types";
 
 const ITEM_TYPES: ExtractedItem["type"][] = ["assignment", "exam", "quiz", "project", "other"];
+const toTitleCase = (value: string) => value.charAt(0).toUpperCase() + value.slice(1);
 
 function newItemId(): string {
   return globalThis.crypto?.randomUUID?.() ?? `item-${Date.now()}-${Math.random().toString(16).slice(2)}`;
@@ -91,7 +92,7 @@ export function InlineAddTask({ classNameLabel, onAdd }: InlineAddTaskProps) {
           <SelectContent>
             {ITEM_TYPES.map((t) => (
               <SelectItem key={t} value={t}>
-                {t}
+                {toTitleCase(t)}
               </SelectItem>
             ))}
           </SelectContent>

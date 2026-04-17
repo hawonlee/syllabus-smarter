@@ -245,6 +245,7 @@ export function EditClassDialog({ open, onOpenChange, value, onSave }: EditClass
               onOpenChange(false);
             }}
             disabled={!canSave}
+            className="bg-black text-white hover:bg-zinc-800"
           >
             Save
           </Button>
