@@ -8,8 +8,8 @@ interface ViewToggleProps {
 
 const views: { mode: ViewMode; icon: typeof Calendar; label: string }[] = [
   { mode: "calendar", icon: Calendar, label: "Calendar" },
-  { mode: "cards", icon: LayoutGrid, label: "Cards" },
-  { mode: "list", icon: List, label: "List" },
+  { mode: "cards", icon: LayoutGrid, label: "All Courses" },
+  { mode: "list", icon: List, label: "All Assignments" },
 ];
 
 export function ViewToggle({ current, onChange }: ViewToggleProps) {

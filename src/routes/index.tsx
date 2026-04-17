@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { BookOpen } from "lucide-react";
+import { BookOpen, Plus } from "lucide-react";
 import { ConfirmationModal } from "@/components/ConfirmationModal";
 import { CalendarView } from "@/components/CalendarView";
 import { ViewToggle } from "@/components/ViewToggle";
@@ -148,9 +148,10 @@ function Index() {
             <ViewToggle current={viewMode} onChange={setViewMode} />
             <button
               onClick={() => setState("upload")}
-              className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+              className="inline-flex items-center justify-center gap-1 rounded-md bg-black px-4 py-2 text-xs font-medium text-white transition-colors hover:bg-zinc-800"
             >
-              + Add class
+              <Plus className="h-3.5 w-3.5 text-white" />
+              Add Course
             </button>
           </div>
         </div>

@@ -110,7 +110,7 @@ export function InlineAddTask({ classNameLabel, onAdd }: InlineAddTaskProps) {
           value={weight}
           onChange={(e) => setWeight(e.target.value)}
           placeholder="% weight"
-          className="w-full sm:w-[88px]"
+          className="w-full sm:w-[104px]"
           min={0}
           max={100}
           aria-label="Weight percent"

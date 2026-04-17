@@ -91,7 +91,7 @@ export function ClassesCardView({
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: classIndex * 0.04 }}
-            className="rounded-xl border border-border bg-card p-4 hover:bg-surface-hover transition-colors"
+            className="rounded-xl border border-border bg-card p-4"
           >
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
