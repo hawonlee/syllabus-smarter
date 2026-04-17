@@ -134,7 +134,9 @@ export function ClassesListView({
                       {item.weight ? `${item.weight}%` : "—"}
                     </span>
                     <span className="text-xs text-muted-foreground">
-                      {format(new Date(item.dueDate), "MMM d")}
+                          {item.dueDate && !isNaN(new Date(item.dueDate).getTime())
+                              ? format(new Date(item.dueDate), "MMM d")
+                              : "No date"}
                     </span>
                     <span className="text-xs text-muted-foreground">{getUrgencyLabel(urgency)}</span>
                     <div className="flex items-center justify-end gap-1">

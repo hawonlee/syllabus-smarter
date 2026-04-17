@@ -67,7 +67,11 @@ export function CardView({ items }: CardViewProps) {
                       </span>
                     </div>
                     <div className="flex items-center gap-3 mt-3 text-xs text-muted-foreground">
-                      <span>{format(new Date(item.dueDate), "MMM d, yyyy")}</span>
+                      <span>
+                        {item.dueDate && !isNaN(new Date(item.dueDate).getTime())
+                            ? format(new Date(item.dueDate), "MMM d, yyyy")
+                            : "No date"}
+                      </span>
                       {item.weight && <span>· {item.weight}%</span>}
                       <span className="ml-auto text-[10px]">{getUrgencyLabel(urgency)}</span>
                     </div>

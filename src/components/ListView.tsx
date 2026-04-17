@@ -51,7 +51,11 @@ export function ListView({ items }: ListViewProps) {
             </div>
             <span className="text-xs text-muted-foreground capitalize">{item.type}</span>
             <span className="text-xs text-muted-foreground">{item.weight ? `${item.weight}%` : "—"}</span>
-            <span className="text-xs text-muted-foreground">{format(new Date(item.dueDate), "MMM d")}</span>
+            <span className="text-xs text-muted-foreground">
+              {item.dueDate && !isNaN(new Date(item.dueDate).getTime())
+                  ? format(new Date(item.dueDate), "MMM d")
+                  : "No date"}
+            </span>
             <span className="text-xs text-muted-foreground">{getUrgencyLabel(urgency)}</span>
           </motion.div>
         );
