@@ -13,8 +13,8 @@ export function ClassInfoBar({ info }: ClassInfoBarProps) {
       : [];
 
   return (
-    <div className="space-y-3 text-xs text-muted-foreground">
-      <div className="flex flex-col justify-start items-start gap-2.5 rounded-md border border-border bg-muted/30 px-3 py-2 text-sm text-foreground">
+    <div className="space-y-3 text-xs text-muted-foreground w-full">
+      <div className="flex flex-col justify-start items-start w-full gap-2.5 rounded-md bg-muted/50 px-3 py-2 text-sm text-foreground">
         {info.instructor && (
           <span className="flex items-center gap-1.5">
             <User className="h-3.5 w-3.5" />
@@ -50,7 +50,7 @@ export function ClassInfoBar({ info }: ClassInfoBarProps) {
             {assistants.map((a, i) => (
               <li
                 key={`${a.name}-${a.email ?? ""}-${i}`}
-                className="flex flex-wrap items-start gap-x-4 gap-y-1 rounded-md border border-border/60 bg-background/40 px-3 py-2"
+                className="flex flex-wrap items-start gap-x-4 gap-y-1 rounded-md bg-muted/50 px-3 py-2"
               >
                 <span className="font-medium text-foreground">
                   {a.role ? `${a.role}: ` : ""}

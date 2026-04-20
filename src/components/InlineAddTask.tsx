@@ -22,38 +22,48 @@ function newItemId(): string {
 
 type InlineAddTaskProps = {
   /** Stored on each item as `className` (calendar / grouping). */
-  classNameLabel: string;
-  onAdd: (item: ExtractedItem) => void;
+  classNameLabel?: string;
+  classOptions?: { classId: string; label: string }[];
+  onAdd: (item: ExtractedItem, classId: string) => void;
 };
 
-export function InlineAddTask({ classNameLabel, onAdd }: InlineAddTaskProps) {
+export function InlineAddTask({ classNameLabel, classOptions, onAdd }: InlineAddTaskProps) {
+  const initialClassId = classOptions?.[0]?.classId ?? "";
   const [name, setName] = useState("");
   const [type, setType] = useState<ExtractedItem["type"]>("assignment");
   const [dueDate, setDueDate] = useState(() => format(new Date(), "yyyy-MM-dd"));
   const [weight, setWeight] = useState("");
   const [description, setDescription] = useState("");
+  const [selectedClassId, setSelectedClassId] = useState(initialClassId);
 
   const resetDefaults = () => {
     setType("assignment");
     setDueDate(format(new Date(), "yyyy-MM-dd"));
   };
 
+  const resolvedClassId = classOptions ? selectedClassId : classNameLabel ? "__single_class__" : "";
+  const resolvedClassName =
+    classOptions?.find((option) => option.classId === selectedClassId)?.label ?? classNameLabel ?? "";
+
   const canSubmit =
-    name.trim().length > 0 && /^\d{4}-\d{2}-\d{2}$/.test(dueDate);
+    name.trim().length > 0 && /^\d{4}-\d{2}-\d{2}$/.test(dueDate) && resolvedClassId.length > 0;
 
   const submit = () => {
     const trimmed = name.trim();
-    if (!trimmed || !/^\d{4}-\d{2}-\d{2}$/.test(dueDate)) return;
+    if (!trimmed || !/^\d{4}-\d{2}-\d{2}$/.test(dueDate) || !resolvedClassId || !resolvedClassName) return;
     const w = weight.trim() === "" ? undefined : Number(weight);
-    onAdd({
-      id: newItemId(),
-      name: trimmed,
-      type,
-      dueDate,
-      className: classNameLabel,
-      weight: Number.isFinite(w) ? w : undefined,
-      description: description.trim() || undefined,
-    });
+    onAdd(
+      {
+        id: newItemId(),
+        name: trimmed,
+        type,
+        dueDate,
+        className: resolvedClassName,
+        weight: Number.isFinite(w) ? w : undefined,
+        description: description.trim() || undefined,
+      },
+      classOptions ? selectedClassId : resolvedClassId
+    );
     setName("");
     setWeight("");
     setDescription("");
@@ -72,6 +82,20 @@ export function InlineAddTask({ classNameLabel, onAdd }: InlineAddTaskProps) {
         Add task
       </p>
       <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-end">
+        {classOptions ? (
+          <Select value={selectedClassId} onValueChange={setSelectedClassId}>
+            <SelectTrigger className="w-full sm:w-[180px]" aria-label="Class">
+              <SelectValue placeholder="Class" />
+            </SelectTrigger>
+            <SelectContent>
+              {classOptions.map((option) => (
+                <SelectItem key={option.classId} value={option.classId}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        ) : null}
         <Input
           value={name}
           onChange={(e) => setName(e.target.value)}

@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { BookOpen, Plus } from "lucide-react";
+import { BookOpen, Plus, Badge } from "lucide-react";
 import { ConfirmationModal } from "@/components/ConfirmationModal";
 import { CalendarView } from "@/components/CalendarView";
 import { ViewToggle } from "@/components/ViewToggle";
@@ -10,6 +10,7 @@ import { ClassesCardView } from "@/components/ClassesCardView";
 import { ClassesListView } from "@/components/ClassesListView";
 import { extractSyllabus } from "@/lib/extract.functions";
 import type { SyllabusData, ViewMode } from "@/lib/types";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -136,23 +137,24 @@ function Index() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-white">
       {/* Header */}
-      <header className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-40">
-        <div className="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between">
+      <header className="border-b border-border/50 backdrop-blur-sm sticky top-0 z-40">
+        <div className="w-full mx-auto px-6 h-14 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            {/* <BookOpen className="h-5 w-5 text-foreground" /> */}
-            <span className="text-sm font-semibold tracking-tight text-foreground">Syllably</span>
+            {/* <Badge className="h-5 w-5 text-foreground" /> */}
+            <span className="text-sm  text-foreground">SYLLABY</span>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-8">
             <ViewToggle current={viewMode} onChange={setViewMode} />
-            <button
+            <Button
               onClick={() => setState("upload")}
-              className="inline-flex items-center justify-center gap-1 rounded-md bg-black px-4 py-2 h-full text-xs font-medium text-white transition-colors hover:bg-zinc-800"
+              variant="default"
+              className="h-full text-xs"
             >
-              <Plus className="h-3.5 w-3.5 text-white" />
+              <Plus className="h-3.5 w-3.5 -ml-1 text-white" />
               Add Course
-            </button>
+            </Button>
           </div>
         </div>
       </header>
@@ -179,7 +181,7 @@ function Index() {
 
       {/* Dashboard */}
       {state === "dashboard" && (
-        <main className="max-w-5xl mx-auto px-6 py-6">
+        <main className="w-full mx-auto px-6 py-6">
           {/* <div className="mb-4 rounded-md border border-border bg-card px-4 py-3 text-xs text-muted-foreground">
             SyllabEase takes in your syllabus and scans it for relevant information to then categorize your
             asssignments. You syllabus information will not be used for any other purpose
@@ -206,17 +208,18 @@ function Index() {
                   onDeleteItem={deleteItem}
                   onAddItem={addItem}
                   emptyState={
-                    <div className="rounded-xl border border-border bg-card p-8 text-center sm:col-span-2">
+                    <div className="p-8 text-center sm:col-span-2">
                       <h2 className="text-sm font-semibold text-foreground">No classes yet</h2>
                       <p className="mt-1 text-sm text-muted-foreground">
                         Add a class to start seeing assignments and deadlines here.
                       </p>
-                      <button
+                      <Button
+                        variant="default"
                         onClick={() => setState("upload")}
-                        className="mt-4 inline-flex items-center justify-center rounded-md bg-black px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-zinc-800"
+                        className="mt-4"
                       >
                         Add your first class
-                      </button>
+                      </Button>
                     </div>
                   }
                 />
@@ -230,17 +233,18 @@ function Index() {
                   onDeleteItem={deleteItem}
                   onAddItem={addItem}
                   emptyState={
-                    <div className="rounded-xl border border-border bg-card p-8 text-center">
+                    <div className="p-8 text-center">
                       <h2 className="text-sm font-semibold text-foreground">No classes yet</h2>
                       <p className="mt-1 text-sm text-muted-foreground">
                         Add a class to start seeing assignments and deadlines here.
                       </p>
-                      <button
+                      <Button
+                        variant="default"
                         onClick={() => setState("upload")}
-                        className="mt-4 inline-flex items-center justify-center rounded-md bg-black px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-zinc-800"
+                        className="mt-4 "
                       >
                         Add your first class
-                      </button>
+                      </Button>
                     </div>
                   }
                 />

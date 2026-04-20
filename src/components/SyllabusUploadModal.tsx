@@ -26,7 +26,7 @@ export function SyllabusUploadModal({
 }: SyllabusUploadModalProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-w-2xl bg-card">
         <DialogHeader>
           <DialogTitle>Add a class</DialogTitle>
           <DialogDescription>
@@ -39,12 +39,18 @@ export function SyllabusUploadModal({
           <SyllabusUpload onTextReady={onTextReady} isProcessing={isProcessing} />
         </div>
 
+        <div className="flex items-center w-xl mx-auto gap-3 mt-4">
+            <div className="h-px flex-1 bg-border" />
+            <span className="text-xs text-muted-foreground">or</span>
+            <div className="h-px flex-1 bg-border" />
+          </div>
+
         {onCreateEmpty && (
-          <div className="flex justify-center border-t border-border pt-4">
+          <div className="flex justify-center pt-4">
             <Button
               type="button"
-              variant="ghost"
-              className="text-sm text-muted-foreground hover:text-foreground"
+              variant="outline"
+              className="w-xl"
               disabled={isProcessing}
               onClick={() => {
                 onCreateEmpty();
@@ -56,7 +62,7 @@ export function SyllabusUploadModal({
           </div>
         )}
 
-        <DialogFooter className="gap-2 sm:gap-0">
+        {/* <DialogFooter className="gap-2 sm:gap-0">
           <Button
             type="button"
             variant="outline"
@@ -65,7 +71,7 @@ export function SyllabusUploadModal({
           >
             Cancel
           </Button>
-        </DialogFooter>
+        </DialogFooter> */}
       </DialogContent>
     </Dialog>
   );

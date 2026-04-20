@@ -77,9 +77,7 @@ export function SyllabusUpload({ onTextReady, isProcessing }: SyllabusUploadProp
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, ease: "easeOut" }}
+    
       className="w-full max-w-xl mx-auto"
     >
       {!pasteMode ? (
@@ -128,15 +126,15 @@ export function SyllabusUpload({ onTextReady, isProcessing }: SyllabusUploadProp
             )}
           </div>
 
-          <div className="flex items-center gap-3 mt-4">
+          <div className="flex items-center gap-3 mt-6">
             <div className="h-px flex-1 bg-border" />
             <span className="text-xs text-muted-foreground">or</span>
             <div className="h-px flex-1 bg-border" />
           </div>
 
           <Button
-            variant="outline"
-            className="w-full mt-4 gap-2"
+            variant="default"
+            className="w-full mt-6 gap-2"
             onClick={() => setPasteMode(true)}
             disabled={isProcessing}
           >

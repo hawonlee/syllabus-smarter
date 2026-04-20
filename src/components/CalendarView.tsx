@@ -53,7 +53,7 @@ export function CalendarView({ items, classColorByName }: CalendarViewProps) {
       </div>
 
       {/* Days grid */}
-      <div className="grid grid-cols-7 gap-px bg-border rounded-lg overflow-hidden">
+      <div className="grid grid-cols-7 gap-px bg-border rounded-lg border overflow-hidden">
         {days.map((day) => {
           const dayItems = getItemsForDay(day);
           const inMonth = isSameMonth(day, currentMonth);

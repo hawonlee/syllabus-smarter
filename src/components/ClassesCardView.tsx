@@ -95,42 +95,51 @@ export function ClassesCardView({
             className="rounded-xl border border-border bg-card p-4"
           >
             <div className="flex items-start justify-between gap-3">
-              <div className="min-w-0">
-                <div className="flex items-center gap-2 min-w-0">
-                  <div
-                    className="h-2 w-2 rounded-full flex-shrink-0"
-                    style={{ backgroundColor: klass.classInfo.color ?? "#3B82F6" }}
-                    aria-hidden="true"
-                  />
-                  <h3 className="text-sm font-semibold text-foreground truncate">
-                    {klass.classInfo.name}
-                  </h3>
+              <div className="min-w-0 w-full">
+                <div className="flex items-center justify-between min-w-0">
+                 <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span
+                        className="inline-flex max-w-full items-center rounded-full px-2.5 py-0.5 text-sm "
+                        style={{ backgroundColor: `${klass.classInfo.color ?? "#3B82F6"}30` }}
+                      >
+                        <span
+                          className="truncate"
+                          style={{ color: `${klass.classInfo.color ?? "#3B82F6"}` }}
+                        >
+                          {klass.classInfo.name}
+                        </span>
+                      </span>
+                    </div>
+                 </div>
+
+                  <div className="flex items-center gap-2">
+                    <span className="text-[11px] text-muted-foreground whitespace-nowrap">
+                      {classItems.length} item{classItems.length === 1 ? "" : "s"}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setEditingClassId(classId)}
+                      className="p-1.5 rounded-md hover:bg-accent transition-colors"
+                      aria-label="Edit class"
+                    >
+                      <Edit2 className="h-4 w-4 text-muted-foreground" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setDeletingClassId(classId)}
+                      className="p-1.5 rounded-md hover:bg-accent transition-colors"
+                      aria-label="Delete class"
+                    >
+                      <Trash2 className="h-4 w-4 text-muted-foreground" />
+                    </button>
+                  </div>
                 </div>
-                <div className="mt-2">
+                <div className="mt-3 w-full">
                   <ClassInfoBar info={klass.classInfo} />
                 </div>
               </div>
-              <div className="flex items-center gap-2">
-                <span className="text-[11px] text-muted-foreground whitespace-nowrap">
-                  {classItems.length} item{classItems.length === 1 ? "" : "s"}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => setEditingClassId(classId)}
-                  className="p-1.5 rounded-md hover:bg-accent transition-colors"
-                  aria-label="Edit class"
-                >
-                  <Edit2 className="h-4 w-4 text-muted-foreground" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setDeletingClassId(classId)}
-                  className="p-1.5 rounded-md hover:bg-accent transition-colors"
-                  aria-label="Delete class"
-                >
-                  <Trash2 className="h-4 w-4 text-muted-foreground" />
-                </button>
-              </div>
+
             </div>
 
             <div className="mt-4 space-y-2">
@@ -141,10 +150,10 @@ export function ClassesCardView({
                     key={item.id}
                     className="flex items-start gap-2 rounded-lg border border-border/70 bg-background/60 px-3 py-2"
                   >
-                    <div className={`mt-1.5 h-2 w-2 rounded-full flex-shrink-0 ${urgencyDot[urgency]}`} />
+                    <div className={`mt-1 h-2 w-2 rounded-full flex-shrink-0 ${urgencyDot[urgency]}`} />
                     <div className="min-w-0 flex-1">
                       <div className="flex items-start justify-between gap-2">
-                        <p className="text-sm font-medium text-foreground truncate">
+                        <p className="text-xs font-medium text-foreground truncate">
                           {item.name}
                         </p>
                         <div className="flex items-center gap-1">
@@ -171,10 +180,10 @@ export function ClassesCardView({
                           </button>
                         </div>
                       </div>
-                      <div className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
                         <span>{getDueDateLabel(item.dueDate)}</span>
                         <span>{item.weight ? `· ${item.weight}%` : "· No grade distribution detected"}</span>
-                        <span className="ml-auto text-[10px]">{getUrgencyLabel(urgency)}</span>
+                        {/* <span className="ml-auto text-[10px]">{getUrgencyLabel(urgency)}</span> */}
                       </div>
                     </div>
                   </div>
@@ -185,7 +194,7 @@ export function ClassesCardView({
             <div className="mt-4 border-t border-border pt-3">
               <InlineAddTask
                 classNameLabel={itemClassName}
-                onAdd={(item) => onAddItem(classId, item)}
+                onAdd={(item, _selectedClassId) => onAddItem(classId, item)}
               />
             </div>
           </motion.div>
@@ -239,4 +248,3 @@ export function ClassesCardView({
     </motion.div>
   );
 }
-

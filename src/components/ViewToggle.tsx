@@ -14,15 +14,33 @@ const views: { mode: ViewMode; icon: typeof Calendar; label: string }[] = [
 
 export function ViewToggle({ current, onChange }: ViewToggleProps) {
   return (
-    <div className="inline-flex items-center gap-0.5 rounded-lg bg-secondary p-1">
+    // <div className="inline-flex items-center gap-0.5 rounded-full bg-secondary p-1">
+    //   {views.map(({ mode, icon: Icon, label }) => (
+    //     <button
+    //       key={mode}
+    //       onClick={() => onChange(mode)}
+    //       className={`
+    //         flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-all
+    //         ${current === mode
+    //           ? "bg-card text-foreground "
+    //           : "text-muted-foreground hover:text-foreground"
+    //         }
+    //       `}
+    //     >
+    //       <Icon className="h-3.5 w-3.5" />
+    //       {label}
+    //     </button>
+    //   ))}
+    // </div>
+    <div className="inline-flex items-center gap-0.5 rounded-full">
       {views.map(({ mode, icon: Icon, label }) => (
         <button
           key={mode}
           onClick={() => onChange(mode)}
           className={`
-            flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-all
+            flex items-center gap-1.5 rounded-full px-3 py-2 text-xs font-medium transition-all
             ${current === mode
-              ? "bg-card text-foreground shadow-sm"
+              ? "bg-secondary text-foreground "
               : "text-muted-foreground hover:text-foreground"
             }
           `}
