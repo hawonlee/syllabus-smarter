@@ -141,7 +141,7 @@ function Index() {
       <header className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-40">
         <div className="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <BookOpen className="h-5 w-5 text-foreground" />
+            {/* <BookOpen className="h-5 w-5 text-foreground" /> */}
             <span className="text-sm font-semibold tracking-tight text-foreground">Syllably</span>
           </div>
           <div className="flex items-center gap-3">
