@@ -15,7 +15,7 @@ export const Route = createFileRoute("/")({
   component: Index,
   head: () => ({
     meta: [
-      { title: "SyllabEase — See Your Semester at a Glance" },
+      { title: "Syllably" },
       { name: "description", content: "Upload your syllabus and instantly see all assignments, exams, and deadlines organized in one calm, clear view." },
     ],
   }),
@@ -142,7 +142,7 @@ function Index() {
         <div className="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <BookOpen className="h-5 w-5 text-foreground" />
-            <span className="text-sm font-semibold tracking-tight text-foreground">SyllabEase</span>
+            <span className="text-sm font-semibold tracking-tight text-foreground">Syllably</span>
           </div>
           <div className="flex items-center gap-3">
             <ViewToggle current={viewMode} onChange={setViewMode} />
