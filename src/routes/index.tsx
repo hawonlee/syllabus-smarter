@@ -148,7 +148,7 @@ function Index() {
             <ViewToggle current={viewMode} onChange={setViewMode} />
             <button
               onClick={() => setState("upload")}
-              className="inline-flex items-center justify-center gap-1 rounded-md bg-black px-4 py-2 text-xs font-medium text-white transition-colors hover:bg-zinc-800"
+              className="inline-flex items-center justify-center gap-1 rounded-md bg-black px-4 py-2 h-full text-xs font-medium text-white transition-colors hover:bg-zinc-800"
             >
               <Plus className="h-3.5 w-3.5 text-white" />
               Add Course
@@ -180,10 +180,10 @@ function Index() {
       {/* Dashboard */}
       {state === "dashboard" && (
         <main className="max-w-5xl mx-auto px-6 py-6">
-          <div className="mb-4 rounded-md border border-border bg-card px-4 py-3 text-xs text-muted-foreground">
+          {/* <div className="mb-4 rounded-md border border-border bg-card px-4 py-3 text-xs text-muted-foreground">
             SyllabEase takes in your syllabus and scans it for relevant information to then categorize your
             asssignments. You syllabus information will not be used for any other purpose
-          </div>
+          </div> */}
           <AnimatePresence mode="wait">
             <motion.div key={viewMode}>
               {viewMode === "calendar" && (

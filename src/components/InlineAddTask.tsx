@@ -125,14 +125,14 @@ export function InlineAddTask({ classNameLabel, onAdd }: InlineAddTaskProps) {
           Add
         </Button>
       </div>
-      <Textarea
+      {/* <Textarea
         value={description}
         onChange={(e) => setDescription(e.target.value)}
         placeholder="Notes (optional)"
         className="min-h-[52px] resize-y text-sm"
         rows={2}
         aria-label="Description"
-      />
+      /> */}
     </form>
   );
 }
