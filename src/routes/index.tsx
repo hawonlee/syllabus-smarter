@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { BookOpen, Plus, Badge } from "lucide-react";
+import { BookOpen, Plus, Badge, BookDashed } from "lucide-react";
 import { ConfirmationModal } from "@/components/ConfirmationModal";
 import { CalendarView } from "@/components/CalendarView";
 import { ViewToggle } from "@/components/ViewToggle";
@@ -137,13 +137,13 @@ function Index() {
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white flex flex-col">
       {/* Header */}
       <header className="border-b border-border/50 backdrop-blur-sm sticky top-0 z-40">
         <div className="w-full mx-auto px-6 h-14 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            {/* <Badge className="h-5 w-5 text-foreground" /> */}
-            <span className="text-sm  text-foreground">SYLLABY</span>
+            <BookDashed className="h-4 w-4 text-muted-foreground" />
+            <span className="text-sm tracking-wide text-muted-foreground">SyllaBye</span>
           </div>
           <div className="flex items-center gap-8">
             <ViewToggle current={viewMode} onChange={setViewMode} />
@@ -181,13 +181,22 @@ function Index() {
 
       {/* Dashboard */}
       {state === "dashboard" && (
-        <main className="w-full mx-auto px-6 py-6">
+        <main
+          className={`w-full mx-auto px-6 py-6 ${
+            viewMode === "calendar"
+              ? "h-[calc(100vh-3.5rem)] overflow-hidden"
+              : "flex-1"
+          } flex flex-col min-h-0`}
+        >
           {/* <div className="mb-4 rounded-md border border-border bg-card px-4 py-3 text-xs text-muted-foreground">
             SyllabEase takes in your syllabus and scans it for relevant information to then categorize your
             asssignments. You syllabus information will not be used for any other purpose
           </div> */}
           <AnimatePresence mode="wait">
-            <motion.div key={viewMode}>
+            <motion.div
+              key={viewMode}
+              className={viewMode === "calendar" ? "flex h-full min-h-0 flex-1 flex-col" : undefined}
+            >
               {viewMode === "calendar" && (
                 <CalendarView
                   items={classes.flatMap((c) => c.items)}

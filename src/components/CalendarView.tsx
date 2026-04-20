@@ -17,6 +17,7 @@ export function CalendarView({ items, classColorByName }: CalendarViewProps) {
   const calStart = startOfWeek(monthStart);
   const calEnd = endOfWeek(monthEnd);
   const days = eachDayOfInterval({ start: calStart, end: calEnd });
+  const weekCount = Math.ceil(days.length / 7);
 
   const prev = () => setCurrentMonth(d => new Date(d.getFullYear(), d.getMonth() - 1));
   const next = () => setCurrentMonth(d => new Date(d.getFullYear(), d.getMonth() + 1));
@@ -28,7 +29,7 @@ export function CalendarView({ items, classColorByName }: CalendarViewProps) {
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="w-full"
+      className="flex h-full w-full min-h-0 flex-col"
     >
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
@@ -44,7 +45,7 @@ export function CalendarView({ items, classColorByName }: CalendarViewProps) {
       </div>
 
       {/* Day headers */}
-      <div className="grid grid-cols-7 mb-1">
+      <div className="mb-1 grid grid-cols-7">
         {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(d => (
           <div key={d} className="text-center text-[10px] font-medium text-muted-foreground py-2">
             {d}
@@ -53,7 +54,10 @@ export function CalendarView({ items, classColorByName }: CalendarViewProps) {
       </div>
 
       {/* Days grid */}
-      <div className="grid grid-cols-7 gap-px bg-border rounded-lg border overflow-hidden">
+      <div
+        className="grid flex-1 min-h-0 grid-cols-7 gap-px overflow-hidden rounded-lg border bg-border"
+        style={{ gridTemplateRows: `repeat(${weekCount}, minmax(0, 1fr))` }}
+      >
         {days.map((day) => {
           const dayItems = getItemsForDay(day);
           const inMonth = isSameMonth(day, currentMonth);
@@ -63,9 +67,9 @@ export function CalendarView({ items, classColorByName }: CalendarViewProps) {
             <div
               key={day.toISOString()}
               className={`
-                min-h-[72px] p-1.5 bg-card transition-colors
-                ${!inMonth ? "opacity-30" : ""}
-                ${today ? "bg-secondary" : ""}
+                min-h-0 p-1.5 bg-card transition-colors
+                ${!inMonth ? "opacity-70" : ""}
+                ${today ? "bg-white/50" : ""}
               `}
             >
               <span className={`
