@@ -31,10 +31,10 @@ export const Route = createRootRoute({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "SyllabEase — See Your Semester at a Glance" },
+      { title: "SyllaBye" },
       { name: "description", content: "Upload your syllabus and instantly see all assignments, exams, and deadlines organized in one calm, clear view." },
-      { name: "author", content: "SyllabEase" },
-      { property: "og:title", content: "SyllabEase — See Your Semester at a Glance" },
+      { name: "author", content: "SyllaBye" },
+      { property: "og:title", content: "SyllaBye" },
       { property: "og:description", content: "Upload your syllabus and instantly see all assignments, exams, and deadlines." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
