@@ -1,7 +1,8 @@
 import { format } from "date-fns";
 import { motion } from "framer-motion";
 import type { SyllabusData } from "@/lib/types";
-import { getUrgency, getUrgencyLabel } from "@/lib/urgency";
+import { parseDateOnly } from "@/lib/date";
+import { getUrgency } from "@/lib/urgency";
 import { ClassInfoBar } from "@/components/ClassInfoBar";
 import { Edit2, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
@@ -10,14 +11,15 @@ import { EditClassDialog } from "@/components/EditClassDialog";
 import { EditItemDialog } from "@/components/EditItemDialog";
 import { ConfirmDeleteDialog } from "@/components/ConfirmDeleteDialog";
 import { InlineAddTask } from "@/components/InlineAddTask";
+import { Checkbox } from "@/components/ui/checkbox";
 import type { ReactNode } from "react";
 
-const urgencyDot: Record<string, string> = {
-  low: "bg-urgency-low",
-  medium: "bg-urgency-medium",
-  high: "bg-urgency-high",
-  critical: "bg-urgency-critical",
-  overdue: "bg-red-600",
+const urgencyColor: Record<string, string> = {
+  low: "#22C55E",
+  medium: "#F59E0B",
+  high: "#F97316",
+  critical: "#EF4444",
+  overdue: "#DC2626",
 };
 
 const typeBadge: Record<string, string> = {
@@ -30,27 +32,32 @@ const typeBadge: Record<string, string> = {
 
 type ClassesCardViewProps = {
   classes: SyllabusData[];
+  completedTaskIds: Set<string>;
   onEditClass: (classId: string, nextInfo: ClassInfo) => void;
   onDeleteClass: (classId: string) => void;
   onEditItem: (classId: string, itemId: string, nextItem: ExtractedItem) => void;
   onDeleteItem: (classId: string, itemId: string) => void;
   onAddItem: (classId: string, item: ExtractedItem) => void;
+  onToggleTaskCompletion: (itemId: string, checked: boolean) => void;
   emptyState?: ReactNode;
 };
 
 export function ClassesCardView({
   classes,
+  completedTaskIds,
   onEditClass,
   onDeleteClass,
   onEditItem,
   onDeleteItem,
   onAddItem,
+  onToggleTaskCompletion,
   emptyState,
 }: ClassesCardViewProps) {
   const getDueDateLabel = (dueDate?: string) => {
-    if (!dueDate?.trim()) return "No due date detected";
-    const parsed = new Date(dueDate);
-    return Number.isNaN(parsed.getTime()) ? "No due date detected" : format(parsed, "MMM d, yyyy");
+    if (!dueDate?.trim()) return "No due date";
+    const parsed = parseDateOnly(dueDate);
+    if (!parsed) return "No due date";
+    return Number.isNaN(parsed.getTime()) ? "No due date" : format(parsed, "MMM d, yyyy");
   };
 
   const sortedClasses = [...classes].sort((a, b) =>
@@ -78,7 +85,9 @@ export function ClassesCardView({
       ) : (
         sortedClasses.map((klass, classIndex) => {
         const classItems = [...klass.items].sort(
-          (a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()
+          (a, b) =>
+            (parseDateOnly(a.dueDate)?.getTime() ?? Number.POSITIVE_INFINITY) -
+            (parseDateOnly(b.dueDate)?.getTime() ?? Number.POSITIVE_INFINITY)
         );
         const classId = klass.id || `${klass.classInfo.name}-${classIndex}`;
         const itemClassName =
@@ -100,8 +109,8 @@ export function ClassesCardView({
                  <div className="flex items-center gap-2">
                     <div className="flex items-center gap-2 min-w-0">
                       <span
-                        className="inline-flex max-w-full items-center rounded-full px-2.5 py-0.5 text-sm "
-                        style={{ backgroundColor: `${klass.classInfo.color ?? "#3B82F6"}30` }}
+                        className="inline-flex max-w-full items-center rounded-md px-3.5 py-1 text-sm "
+                        style={{ backgroundColor: `${klass.classInfo.color ?? "#3B82F6"}20` }}
                       >
                         <span
                           className="truncate"
@@ -145,20 +154,32 @@ export function ClassesCardView({
             <div className="mt-4 space-y-2">
               {classItems.map((item) => {
                 const urgency = getUrgency(item.dueDate);
+                const isCompleted = completedTaskIds.has(item.id);
                 return (
                   <div
                     key={item.id}
-                    className="flex items-start gap-2 rounded-lg border border-border/70 bg-background/60 px-3 py-2"
+                    className={`flex items-start gap-2 rounded-lg border border-border/70 px-3 py-2 ${
+                      isCompleted ? "bg-muted/40" : "bg-background/60"
+                    }`}
                   >
-                    <div className={`mt-1 h-2 w-2 rounded-full flex-shrink-0 ${urgencyDot[urgency]}`} />
+                    <Checkbox
+                      checked={isCompleted}
+                      onCheckedChange={(checked) => onToggleTaskCompletion(item.id, checked === true)}
+                      aria-label={`Mark ${item.name} complete`}
+                      className="mt-0.5"
+                    />
                     <div className="min-w-0 flex-1">
                       <div className="flex items-start justify-between gap-2">
-                        <p className="text-xs font-medium text-foreground truncate">
+                        <p
+                          className={`text-xs font-medium truncate ${
+                            isCompleted ? "text-muted-foreground line-through" : "text-foreground"
+                          }`}
+                        >
                           {item.name}
                         </p>
                         <div className="flex items-center gap-1">
                           <span
-                            className={`text-[10px] font-medium uppercase tracking-wider px-2 py-0.5 rounded-full whitespace-nowrap ${typeBadge[item.type] || typeBadge.other}`}
+                            className={`text-[10px] text-muted-foreground font-medium uppercase tracking-wider px-2 py-0.5 rounded-full whitespace-nowrap `}
                           >
                             {item.type}
                           </span>
@@ -180,8 +201,20 @@ export function ClassesCardView({
                           </button>
                         </div>
                       </div>
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <span>{getDueDateLabel(item.dueDate)}</span>
+                      <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
+                        {parseDateOnly(item.dueDate) ? (
+                          <span
+                            className="inline-flex items-center rounded-md px-2 py-0.5 font-medium"
+                            style={{
+                              backgroundColor: `${urgencyColor[urgency]}10`,
+                              color: `${urgencyColor[urgency]}`,
+                            }}
+                          >
+                            {getDueDateLabel(item.dueDate)}
+                          </span>
+                        ) : (
+                          <span>{getDueDateLabel(item.dueDate)}</span>
+                        )}
                         <span>{item.weight ? `· ${item.weight}%` : "· No grade distribution detected"}</span>
                         {/* <span className="ml-auto text-[10px]">{getUrgencyLabel(urgency)}</span> */}
                       </div>

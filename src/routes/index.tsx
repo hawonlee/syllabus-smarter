@@ -16,7 +16,7 @@ export const Route = createFileRoute("/")({
   component: Index,
   head: () => ({
     meta: [
-      { title: "Syllably" },
+      { title: "SyllaBye" },
       { name: "description", content: "Upload your syllabus and instantly see all assignments, exams, and deadlines organized in one calm, clear view." },
     ],
   }),
@@ -52,6 +52,7 @@ function Index() {
   const [pendingData, setPendingData] = useState<SyllabusData | null>(null);
   const [classes, setClasses] = useState<SyllabusData[]>([]);
   const [viewMode, setViewMode] = useState<ViewMode>("cards");
+  const [completedTaskIds, setCompletedTaskIds] = useState<Set<string>>(new Set());
 
   const handleTextReady = async (text: string) => {
     setIsProcessing(true);
@@ -106,7 +107,19 @@ function Index() {
   };
 
   const deleteClass = (classId: string) => {
-    setClasses((prev) => prev.filter((c) => c.id !== classId));
+    setClasses((prev) => {
+      const removedClass = prev.find((c) => c.id === classId);
+      if (removedClass) {
+        setCompletedTaskIds((current) => {
+          const next = new Set(current);
+          for (const item of removedClass.items) {
+            next.delete(item.id);
+          }
+          return next;
+        });
+      }
+      return prev.filter((c) => c.id !== classId);
+    });
   };
 
   const updateItem = (classId: string, itemId: string, nextItem: SyllabusData["items"][number]) => {
@@ -120,6 +133,11 @@ function Index() {
   };
 
   const deleteItem = (classId: string, itemId: string) => {
+    setCompletedTaskIds((current) => {
+      const next = new Set(current);
+      next.delete(itemId);
+      return next;
+    });
     setClasses((prev) =>
       prev.map((c) => (c.id === classId ? { ...c, items: c.items.filter((it) => it.id !== itemId) } : c))
     );
@@ -129,6 +147,18 @@ function Index() {
     setClasses((prev) =>
       prev.map((c) => (c.id === classId ? { ...c, items: [...c.items, item] } : c))
     );
+  };
+
+  const toggleTaskCompletion = (itemId: string, checked: boolean) => {
+    setCompletedTaskIds((current) => {
+      const next = new Set(current);
+      if (checked) {
+        next.add(itemId);
+      } else {
+        next.delete(itemId);
+      }
+      return next;
+    });
   };
 
   const handleCloseModals = () => {
@@ -200,22 +230,26 @@ function Index() {
               {viewMode === "calendar" && (
                 <CalendarView
                   items={classes.flatMap((c) => c.items)}
+                  completedTaskIds={completedTaskIds}
                   classColorByName={Object.fromEntries(
                     classes.map((c) => [
                       c.classInfo.code || deriveClassCode(c),
                       c.classInfo.color || CLASS_COLORS[0],
                     ])
                   )}
+                  onToggleTaskCompletion={toggleTaskCompletion}
                 />
               )}
               {viewMode === "cards" && (
                 <ClassesCardView
                   classes={classes}
+                  completedTaskIds={completedTaskIds}
                   onEditClass={updateClassInfo}
                   onDeleteClass={deleteClass}
                   onEditItem={updateItem}
                   onDeleteItem={deleteItem}
                   onAddItem={addItem}
+                  onToggleTaskCompletion={toggleTaskCompletion}
                   emptyState={
                     <div className="p-8 text-center sm:col-span-2">
                       <h2 className="text-sm font-semibold text-foreground">No classes yet</h2>
@@ -236,11 +270,13 @@ function Index() {
               {viewMode === "list" && (
                 <ClassesListView
                   classes={classes}
+                  completedTaskIds={completedTaskIds}
                   onEditClass={updateClassInfo}
                   onDeleteClass={deleteClass}
                   onEditItem={updateItem}
                   onDeleteItem={deleteItem}
                   onAddItem={addItem}
+                  onToggleTaskCompletion={toggleTaskCompletion}
                   emptyState={
                     <div className="p-8 text-center">
                       <h2 className="text-sm font-semibold text-foreground">No classes yet</h2>

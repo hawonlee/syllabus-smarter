@@ -1,8 +1,12 @@
 import { differenceInDays } from "date-fns";
 import type { UrgencyLevel } from "./types";
+import { parseDateOnly } from "./date";
 
 export function getUrgency(dueDate: string): UrgencyLevel {
-  const days = differenceInDays(new Date(dueDate), new Date());
+  const parsedDueDate = parseDateOnly(dueDate);
+  if (!parsedDueDate) return "low";
+
+  const days = differenceInDays(parsedDueDate, new Date());
   if (days < 0) return "overdue";
   if (days <= 3) return "critical";
   if (days <= 7) return "high";

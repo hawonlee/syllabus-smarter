@@ -7,24 +7,28 @@ import { EditClassDialog } from "@/components/EditClassDialog";
 import { EditItemDialog } from "@/components/EditItemDialog";
 import { ConfirmDeleteDialog } from "@/components/ConfirmDeleteDialog";
 import { InlineAddTask } from "@/components/InlineAddTask";
+import { Checkbox } from "@/components/ui/checkbox";
 import type { ClassInfo, ExtractedItem, SyllabusData } from "@/lib/types";
-import { getUrgency, getUrgencyLabel } from "@/lib/urgency";
+import { parseDateOnly } from "@/lib/date";
+import { getUrgency } from "@/lib/urgency";
 
-const urgencyDot: Record<string, string> = {
-  low: "bg-urgency-low",
-  medium: "bg-urgency-medium",
-  high: "bg-urgency-high",
-  critical: "bg-urgency-critical",
-  overdue: "bg-red-600",
+const urgencyColor: Record<string, string> = {
+  low: "#22C55E",
+  medium: "#F59E0B",
+  high: "#F97316",
+  critical: "#EF4444",
+  overdue: "#DC2626",
 };
 
 type ClassesListViewProps = {
   classes: SyllabusData[];
+  completedTaskIds: Set<string>;
   onEditClass: (classId: string, nextInfo: ClassInfo) => void;
   onDeleteClass: (classId: string) => void;
   onEditItem: (classId: string, itemId: string, nextItem: ExtractedItem) => void;
   onDeleteItem: (classId: string, itemId: string) => void;
   onAddItem: (classId: string, item: ExtractedItem) => void;
+  onToggleTaskCompletion: (itemId: string, checked: boolean) => void;
   emptyState?: ReactNode;
 };
 
@@ -36,18 +40,20 @@ type FlattenedItem = {
 };
 
 function getDateValue(dueDate?: string) {
-  if (!dueDate?.trim()) return Number.POSITIVE_INFINITY;
-  const parsed = new Date(dueDate).getTime();
+  const parsed = parseDateOnly(dueDate)?.getTime();
+  if (parsed == null) return Number.POSITIVE_INFINITY;
   return Number.isNaN(parsed) ? Number.POSITIVE_INFINITY : parsed;
 }
 
 export function ClassesListView({
   classes,
+  completedTaskIds,
   onEditClass,
   onDeleteClass,
   onEditItem,
   onDeleteItem,
   onAddItem,
+  onToggleTaskCompletion,
   emptyState,
 }: ClassesListViewProps) {
   const sortedClasses = useMemo(
@@ -107,7 +113,8 @@ export function ClassesListView({
       {sortedClasses.length > 0 ? (
         <>
           <div className="rounded-lg border border-border overflow-hidden">
-            <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)_100px_80px_100px_80px] gap-2 px-4 py-2.5 bg-secondary text-[11px] font-medium text-muted-foreground uppercase tracking-wider">
+            <div className="grid grid-cols-[40px_minmax(0,1fr)_minmax(0,1.4fr)_100px_80px_100px_80px] gap-2 px-4 py-2.5 bg-secondary text-[11px] font-medium text-muted-foreground uppercase tracking-wider">
+              <span aria-hidden="true">&nbsp;</span>
               <span>Class</span>
               <span>Assignment</span>
               <span>Type</span>
@@ -118,6 +125,8 @@ export function ClassesListView({
 
             {allItems.map(({ classColor, classDisplayName, classId, item }, i) => {
               const urgency = getUrgency(item.dueDate);
+              const parsedDueDate = parseDateOnly(item.dueDate);
+              const isCompleted = completedTaskIds.has(item.id);
 
               return (
                 <motion.div
@@ -125,35 +134,60 @@ export function ClassesListView({
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: i * 0.015 }}
-                  className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)_100px_80px_100px_80px] gap-2 px-4 py-3 border-t border-border items-center hover:bg-surface-hover transition-colors"
+                  className={`grid grid-cols-[40px_minmax(0,1fr)_minmax(0,1.4fr)_100px_80px_100px_80px] gap-2 px-4 py-3 border-t border-border items-center transition-colors ${
+                    isCompleted ? "bg-muted/30 text-muted-foreground" : "hover:bg-surface-hover"
+                  }`}
                 >
+                  <div className="flex items-center justify-center">
+                    <Checkbox
+                      checked={isCompleted}
+                      onCheckedChange={(checked) => onToggleTaskCompletion(item.id, checked === true)}
+                      aria-label={`Mark ${item.name} complete`}
+                    />
+                  </div>
+
                   <div className="flex items-center gap-2 min-w-0">
                     <span
-                      className="inline-flex max-w-full items-center rounded-full px-2.5 py-0.5 text-xs  text-white"
-                      style={{ backgroundColor: `${classColor}30` }}
+                      className="inline-flex max-w-full items-center rounded-md px-2.5 py-0.5 text-xs  text-white"
+                      style={{ backgroundColor: `${classColor}20` }}
                     >
                       <span className="truncate" style={{ color: `${classColor}`}}>{classDisplayName}</span>
                     </span>
                   </div>
 
                   <div className="flex items-center gap-2 min-w-0">
-                    <div className={`h-2 w-2 rounded-full flex-shrink-0 ${urgencyDot[urgency]}`} />
                     <div className="min-w-0">
-                      <span className="block text-sm text-foreground truncate">{item.name}</span>
+                      <span
+                        className={`block text-sm truncate ${
+                          isCompleted ? "text-muted-foreground line-through" : "text-foreground"
+                        }`}
+                      >
+                        {item.name}
+                      </span>
                       {/* <span className="text-xs text-muted-foreground">{getUrgencyLabel(urgency)}</span> */}
                     </div>
                   </div>
 
-                  <span className="text-xs text-muted-foreground capitalize">{item.type}</span>
+                  <span className="text-sm text-muted-foreground capitalize">{item.type}</span>
 
-                  <span className="text-xs text-muted-foreground">
+                  <span className="text-sm text-muted-foreground">
                     {item.weight ? `${item.weight}%` : "—"}
                   </span>
 
                   <span className="text-xs text-muted-foreground">
-                    {item.dueDate && !Number.isNaN(new Date(item.dueDate).getTime())
-                      ? format(new Date(item.dueDate), "MMM d")
-                      : "No date"}
+                    {parsedDueDate ? (
+                      <span
+                        className="inline-flex items-center rounded-md px-2.5 py-0.5 font-medium"
+                        style={{
+                          backgroundColor: `${urgencyColor[urgency]}20`,
+                          color: urgencyColor[urgency],
+                        }}
+                      >
+                        {format(parsedDueDate, "MMM d")}
+                      </span>
+                    ) : (
+                      "No date"
+                    )}
                   </span>
 
                   <div className="flex items-center justify-end gap-1">

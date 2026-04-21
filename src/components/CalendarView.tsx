@@ -3,13 +3,22 @@ import { useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { motion } from "framer-motion";
 import type { ExtractedItem } from "@/lib/types";
+import { parseDateOnly } from "@/lib/date";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface CalendarViewProps {
   items: ExtractedItem[];
+  completedTaskIds: Set<string>;
   classColorByName?: Record<string, string>;
+  onToggleTaskCompletion: (itemId: string, checked: boolean) => void;
 }
 
-export function CalendarView({ items, classColorByName }: CalendarViewProps) {
+export function CalendarView({
+  items,
+  completedTaskIds,
+  classColorByName,
+  onToggleTaskCompletion,
+}: CalendarViewProps) {
   const [currentMonth, setCurrentMonth] = useState(new Date());
 
   const monthStart = startOfMonth(currentMonth);
@@ -23,7 +32,10 @@ export function CalendarView({ items, classColorByName }: CalendarViewProps) {
   const next = () => setCurrentMonth(d => new Date(d.getFullYear(), d.getMonth() + 1));
 
   const getItemsForDay = (day: Date) =>
-    items.filter(item => isSameDay(new Date(item.dueDate), day));
+    items.filter((item) => {
+      const dueDate = parseDateOnly(item.dueDate);
+      return dueDate ? isSameDay(dueDate, day) : false;
+    });
 
   return (
     <motion.div
@@ -74,7 +86,7 @@ export function CalendarView({ items, classColorByName }: CalendarViewProps) {
             >
               <span className={`
                 text-[11px] font-medium
-                ${today ? "bg-foreground text-background rounded-full w-5 h-5 flex items-center justify-center" : "text-muted-foreground"}
+                ${today ? "bg-red-600 text-background rounded-full w-6 h-6 flex items-center justify-center" : "text-muted-foreground"}
               `}>
                 {format(day, "d")}
               </span>
@@ -82,17 +94,36 @@ export function CalendarView({ items, classColorByName }: CalendarViewProps) {
                 {dayItems.slice(0, 2).map(item => (
                   <div
                     key={item.id}
-                    className="flex items-center gap-1 group cursor-default"
+                    className="flex items-center gap-1 group min-w-0"
                     title={`${item.name} (${item.type})`}
                   >
-                    <div
-                      className="h-1.5 w-1.5 rounded-full flex-shrink-0"
-                      style={{
-                        backgroundColor:
-                          classColorByName?.[item.className] ?? "var(--muted-foreground)",
-                      }}
-                    />
-                    <span className="text-[10px] text-foreground truncate leading-tight">{item.name}</span>
+                    {(() => {
+                      const classColor = classColorByName?.[item.className] ?? "#6B7280";
+                      return (
+                        <div className="flex items-center gap-2 min-w-0 w-full">
+                          <span
+                            className="inline-flex w-full items-center rounded-md px-2 py-1 gap-1 text-xs text-white"
+                            style={{
+                              backgroundColor: `${classColor}20`,
+                            }}
+                          >
+                            <Checkbox
+                              checked={completedTaskIds.has(item.id)}
+                              onCheckedChange={(checked) => onToggleTaskCompletion(item.id, checked === true)}
+                              aria-label={`Mark ${item.name} complete`}
+                              className="h-3 w-3"
+                              style={{ borderColor: classColor, color: classColor }}
+                            />
+                            <span
+                              className={`truncate ${completedTaskIds.has(item.id) ? "line-through" : ""}`}
+                              style={{ color: classColor }}
+                            >
+                              {item.name}
+                            </span>
+                          </span>
+                        </div>
+                      );
+                    })()}
                   </div>
                 ))}
                 {dayItems.length > 2 && (
