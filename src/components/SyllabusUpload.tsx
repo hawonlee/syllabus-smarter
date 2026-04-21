@@ -78,7 +78,7 @@ export function SyllabusUpload({ onTextReady, isProcessing }: SyllabusUploadProp
   return (
     <motion.div
     
-      className="w-full max-w-xl mx-auto"
+      className="mx-auto w-full min-w-0 max-w-xl"
     >
       {!pasteMode ? (
         <>
@@ -88,7 +88,7 @@ export function SyllabusUpload({ onTextReady, isProcessing }: SyllabusUploadProp
             onDragOver={handleDrag}
             onDrop={handleDrop}
             className={`
-              relative flex flex-col items-center justify-center gap-4 rounded-xl border-2 border-dashed p-12 transition-all cursor-pointer
+              relative flex min-h-0 flex-col cursor-pointer items-center justify-center gap-3 rounded-xl border-2 border-dashed p-6 transition-all sm:gap-4 sm:p-10 md:p-12
               ${dragActive
                 ? "border-foreground bg-surface-hover scale-[1.01]"
                 : "border-border bg-card hover:border-muted-foreground hover:bg-surface"
@@ -148,7 +148,7 @@ export function SyllabusUpload({ onTextReady, isProcessing }: SyllabusUploadProp
             value={pastedText}
             onChange={(e) => setPastedText(e.target.value)}
             placeholder="Paste your syllabus content here..."
-            className="w-full h-48 rounded-xl border border-border bg-card p-4 text-sm text-foreground placeholder:text-muted-foreground resize-none focus:outline-none focus:ring-1 focus:ring-ring"
+            className="h-36 max-h-[min(12rem,45dvh)] w-full resize-none rounded-xl border border-border bg-card p-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring sm:h-48 sm:max-h-none sm:p-4"
             autoFocus
           />
           <div className="flex gap-2">
